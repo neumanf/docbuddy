@@ -28,11 +28,16 @@
         "setSkipTaskbar": true
       }
     },
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false
+    },
     "windows": [
       {
         "title": "docbuddy",
-        "width": 800,
-        "height": 600,
+        "width": 600,
+        "height": 200,
         "decorations": false
       }
     ],
