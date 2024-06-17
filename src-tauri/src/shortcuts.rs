@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::{env, process::Command};
 
 use tauri::{App, GlobalShortcutManager, Window};
 
@@ -11,10 +11,12 @@ pub fn update_default(app: &mut App, window: &Window) -> Result<(), tauri::Error
             window.hide().unwrap();
         } else {
             window.show().unwrap();
-            Command::new("wmctrl")
-                .args(["-a", "<sth>"])
-                .output()
-                .expect("Failed to set focus");
+            if env::consts::OS == "linux" {
+                Command::new("wmctrl")
+                    .args(["-a", "<sth>"])
+                    .output()
+                    .expect("Failed to set focus");
+            }
         }
     })?;
 
