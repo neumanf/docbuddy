@@ -7,14 +7,10 @@ use tauri::{
 };
 
 mod shortcuts;
+mod commands;
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn search(search: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", search)
-}
-
-fn main() {
+#[tokio::main]
+async fn main() {
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
     let open = CustomMenuItem::new("open".to_string(), "Open");
     let tray_menu = SystemTrayMenu::new()
@@ -47,7 +43,7 @@ fn main() {
             _ => {}
         })
         .setup(setup)
-        .invoke_handler(tauri::generate_handler![search])
+        .invoke_handler(tauri::generate_handler![commands::search])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
