@@ -3,11 +3,12 @@
 
 use std::error::Error;
 use tauri::{
-    App, CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem,
+    App, CustomMenuItem, Manager, PhysicalPosition, PhysicalSize, SystemTray, SystemTrayEvent,
+    SystemTrayMenu, SystemTrayMenuItem,
 };
 
-mod shortcuts;
 mod commands;
+mod shortcuts;
 
 #[tokio::main]
 async fn main() {
@@ -51,6 +52,25 @@ async fn main() {
 fn setup(app: &mut App) -> Result<(), Box<(dyn Error + 'static)>> {
     let handle = app.handle();
     let window = handle.get_window("main").unwrap();
+
+    let screen = window.current_monitor()?.unwrap();
+    let screen_position = screen.position();
+    let screen_size = PhysicalSize::<i32> {
+        width: screen.size().width as i32,
+        height: screen.size().height as i32,
+    };
+    let window_size = PhysicalSize::<i32> {
+        width: window.outer_size()?.width as i32,
+        height: window.outer_size()?.height as i32,
+    };
+
+    let center_offset = 200;
+    let physical_pos = PhysicalPosition {
+        x: screen_position.x + ((screen_size.width / 2) - (window_size.width / 2)),
+        y: screen_position.y + ((screen_size.height / 2) - (window_size.height / 2)) - center_offset,
+    };
+
+    let _ = window.set_position(tauri::Position::Physical(physical_pos));
 
     shortcuts::update_default(app, &window)?;
     shortcuts::update_close(app, &window)?;

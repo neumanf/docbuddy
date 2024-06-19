@@ -17,38 +17,64 @@ impl From<reqwest::Error> for RequestError {
 #[derive(Serialize)]
 pub struct SearchResponse {
     href: String,
-    title: String
+    title: String,
+    description: String,
 }
 
 #[tauri::command]
-pub async fn search(search: &str) -> Result<SearchResponse, RequestError> {
+pub async fn search(site: &str, search: &str) -> Result<Vec<SearchResponse>, RequestError> {
     let encoded_search = encode(search);
-    let website = "tailwindcss.com";
-    let url = format!("https://html.duckduckgo.com/html/?q={encoded_search}+site%3A{website}");
-    let html = reqwest::get(url)
-        .await?
-        .text()
-        .await?;
+    let url = format!("https://html.duckduckgo.com/html/?q={encoded_search}+site%3A{site}");
+    let html = reqwest::get(url.clone()).await?.text().await?;
 
     let document = Html::parse_document(&html);
-    let links_selector = Selector::parse(".result__title").unwrap();
-    let a_selector = Selector::parse("a").unwrap();
 
-    for link in document.select(&links_selector) {
-        for a in link.select(&a_selector) {
-            let href_attr = a.value().attr("href");
+    let results_selector = Selector::parse(".result__body").unwrap();
+    let title_selector = Selector::parse(".result__title").unwrap();
+    let description_selector = Selector::parse(".result__snippet").unwrap();
+    let url_selector = Selector::parse(".result__url").unwrap();
 
-            if let Some(href) = href_attr.filter(|t| !t.is_empty()) {
-                let title = a.text().collect::<Vec<_>>().concat();
-                let href = href.to_string();
+    let mut response: Vec<SearchResponse> = vec![];
+    let mut items_count = 0;
 
-                return Ok(SearchResponse {
-                    title,
-                    href
-                })
-            }
+    for result in document.select(&results_selector) {
+        if items_count >= 5 {
+            break;
+        }
+
+        let mut description = String::new();
+
+        for idk in result.select(&description_selector) {
+            description += &idk.text().collect::<Vec<_>>().concat();
+        }
+
+        let mut title = String::new();
+
+        for idk in result.select(&title_selector) {
+            title += &idk.text().collect::<Vec<_>>().concat();
+        }
+
+        let mut href = String::new();
+
+        for idk in result.select(&url_selector) {
+            href = "https://".to_string();
+            href.push_str(&idk.text().collect::<Vec<_>>().concat().trim());
+        }
+
+        if !href.is_empty()
+            && !title.is_empty()
+            && !title.contains("EOF")
+            && !title.contains("Ad Viewing")
+        {
+            response.push(SearchResponse {
+                href,
+                title,
+                description,
+            });
+
+            items_count = items_count + 1;
         }
     }
 
-    Err(RequestError::NetworkError("No results found".to_string()))
+    return Ok(response);
 }

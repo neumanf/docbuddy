@@ -37,10 +37,12 @@
       {
         "title": "docbuddy",
         "width": 600,
-        "height": 200,
+        "height": 90,
+        "maxHeight": 650,
         "decorations": false,
         "transparent": true,
-        "center": true
+        "center": true,
+        "alwaysOnTop": true
       }
     ],
     "security": {
