@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-display: block;
+  font-family: "Poppins";
+  font-weight: 500;
+  src: url("./fonts/Poppins-Regular.ttf");
+}
+
+:root {
+  font-family: "Poppins";
+  font-weight: 500;
+}
+
+html {
+  @apply text-[14px] text-zinc-200;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+#app {
+  @apply bg-zinc-950;
+  border-radius: 1em;
+  height: 100vh;
+}
+
+*,
+a,
+button {
+  @apply cursor-default select-none;
+}
+
+a {
+  @apply text-sky-500;
+}
+
+h1 {
+  @apply text-xl font-semibold;
+}
+
+p {
+  @apply py-1;
+}
+
+input {
+  @apply bg-transparent text-zinc-700
+}
+
+*:focus {
+  outline: none;
+}
+
+.ti {
+  font-size: 16px;
+}
